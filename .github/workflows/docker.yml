@@ -17,8 +17,8 @@ jobs:
       packages: write
       security-events: write
     with:
-      container-registry: ghcr.io
+      container-registry: docker.io
       image-name: mablanco/tavern-docker-wrapper
     secrets:
-      registry-username: ${{ github.actor }}
-      registry-access-token: ${{ secrets.GITHUB_TOKEN }}
+      registry-username: ${{ secrets.DOCKERHUB_USERNAME }}
+      registry-access-token: ${{ secrets.DOCKERHUB_TOKEN }}

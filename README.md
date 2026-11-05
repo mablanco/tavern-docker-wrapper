@@ -39,7 +39,7 @@ To check your own services, put a `services.yaml` and your Tavern files in a dir
 it as `/config`:
 
 ```sh
-docker run -d -p 8080:8080 -v "$PWD/checks:/config:ro" ghcr.io/mablanco/tavern-docker-wrapper:latest
+docker run -d -p 8080:8080 -v "$PWD/checks:/config:ro" mablanco/tavern-docker-wrapper:latest
 ```
 
 ## How it works
@@ -152,7 +152,7 @@ failed and `2` if the configuration is invalid:
 
 ```sh
 docker run --rm -v "$PWD/checks:/config:ro" -e BILLING_TOKEN \
-  ghcr.io/mablanco/tavern-docker-wrapper:latest --once
+  mablanco/tavern-docker-wrapper:latest --once
 ```
 
 ## Development
