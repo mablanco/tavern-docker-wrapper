@@ -1,0 +1,43 @@
+# A multi-stage flow: values saved from one response are reused in the next requests,
+# like logging in and then calling the API with the token it returned.
+---
+test_name: token flow
+strict:
+  - json:off
+stages:
+  - name: get a token
+    request:
+      url: "{base_url}/uuid"
+      method: GET
+      timeout: 5
+    response:
+      status_code: 200
+      save:
+        json:
+          token: uuid
+
+  - name: send it in a JSON body
+    request:
+      url: "{base_url}/post"
+      method: POST
+      json:
+        token: "{token}"
+      timeout: 5
+    response:
+      status_code: 200
+      json:
+        json:
+          token: "{token}"
+
+  - name: use it as a bearer token
+    request:
+      url: "{base_url}/bearer"
+      method: GET
+      headers:
+        Authorization: "Bearer {token}"
+      timeout: 5
+    response:
+      status_code: 200
+      json:
+        authenticated: true
+        token: "{token}"

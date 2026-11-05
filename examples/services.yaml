@@ -1,0 +1,30 @@
+# Services checked by tavern-docker-wrapper.
+#
+# Any string may reference environment variables as ${NAME} or ${NAME:-default},
+# so secrets never need to live in this file. Test paths are relative to it.
+
+interval: 60        # seconds between two rounds of checks
+timeout: 60         # max seconds for all the tests of one service
+concurrency: 4      # services checked in parallel
+
+alerts:
+  # Slack-compatible incoming webhook (Slack, Mattermost, Rocket.Chat...).
+  # Empty or unset: alerts are only logged.
+  webhook_url: ${ALERT_WEBHOOK_URL:-}
+  repeat_after: 3600  # re-send while a service keeps failing; 0 = never
+
+services:
+  - name: httpbin
+    base_url: http://httpbin:8080
+    tests: tests/httpbin.tavern.yaml
+
+  - name: httpbin-auth
+    base_url: http://httpbin:8080
+    tests: tests/httpbin-auth.tavern.yaml
+    # Extra Tavern variables, available as {user} in the test file
+    variables:
+      user: ${DEMO_USER:-demo}
+
+  - name: httpbin-flow
+    base_url: http://httpbin:8080
+    tests: tests/httpbin-flow.tavern.yaml

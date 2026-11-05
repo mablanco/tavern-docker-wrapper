@@ -1,0 +1,55 @@
+[project]
+name = "tavern-docker-wrapper"
+version = "1.0.0"
+description = "Scheduled API health checks with Tavern: status dashboard, webhook alerts and Prometheus metrics"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+dependencies = [
+    "tavern>=3.7,<4",
+    "fastapi>=0.115",
+    "uvicorn>=0.32",
+    "jinja2>=3.1",
+    "prometheus-client>=0.21",
+    "pydantic>=2.9",
+    "pyyaml>=6.0",
+    "requests>=2.32",
+]
+
+[project.urls]
+Repository = "https://github.com/mablanco/tavern-docker-wrapper"
+
+[project.scripts]
+tavern-wrapper = "tavern_wrapper.__main__:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "httpx>=0.28",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tavern_wrapper"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=tavern_wrapper --cov-report=term-missing --cov-fail-under=70"
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM"]
+ignore = ["S603"]  # the runner calls pytest via subprocess on purpose
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S104", "S310"]

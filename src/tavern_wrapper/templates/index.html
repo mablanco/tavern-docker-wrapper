@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="{{ interval }}">
+  <title>{% if failing %}({{ failing }}) {% endif %}API health</title>
+  <style>
+    :root {
+      --bg: #f6f7f9; --card: #fff; --text: #1d2330; --muted: #677085; --line: #e3e6ec;
+      --ok: #1f8a4c; --ok-bg: #e5f5ec; --bad: #c62f2f; --bad-bg: #fbe7e7;
+      --wait: #8a6d1f; --wait-bg: #fbf3df;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #12151b; --card: #1b1f27; --text: #e6e9ef; --muted: #98a1b3; --line: #2b313c;
+        --ok: #5fd08f; --ok-bg: #173323; --bad: #ff7b7b; --bad-bg: #3a1d1f;
+        --wait: #e7c46a; --wait-bg: #382f17;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text);
+           font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+    h1 { font-size: 1.5rem; margin: 0 0 16px; }
+    .banner { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; }
+    .banner.ok { background: var(--ok-bg); color: var(--ok); }
+    .banner.bad { background: var(--bad-bg); color: var(--bad); }
+    .banner.wait { background: var(--wait-bg); color: var(--wait); }
+    .table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line);
+                  border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line);
+             vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: .85rem; }
+    tr:last-child td { border-bottom: 0; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-weight: 600;
+             font-size: .85rem; }
+    .badge.ok { background: var(--ok-bg); color: var(--ok); }
+    .badge.bad { background: var(--bad-bg); color: var(--bad); }
+    .url, .muted { color: var(--muted); }
+    .url { font-family: ui-monospace, monospace; font-size: .85rem; word-break: break-all; }
+    details summary { cursor: pointer; }
+    ul { margin: 6px 0 0; padding-left: 18px; }
+    footer { margin-top: 16px; color: var(--muted); font-size: .85rem; }
+    footer a { color: inherit; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>API health</h1>
+
+  {% if failing %}
+    <div class="banner bad">{{ failing }} service{{ "s" if failing > 1 }} failing</div>
+  {% elif pending %}
+    <div class="banner wait">Waiting for the first checks to finish…</div>
+  {% else %}
+    <div class="banner ok">All services healthy</div>
+  {% endif %}
+
+  {% if results %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Service</th><th>Status</th><th>Tests</th><th>Duration</th><th>Checked (UTC)</th></tr>
+      </thead>
+      <tbody>
+      {% for r in results %}
+        <tr>
+          <td><strong>{{ r.service }}</strong><br><span class="url">{{ r.base_url }}</span></td>
+          <td>
+            {% if r.ok %}<span class="badge ok">Passing</span>
+            {% else %}<span class="badge bad">Failing</span>{% endif %}
+          </td>
+          <td>
+            {% if r.failures or r.error %}
+              <details>
+                <summary>{{ r.summary }}</summary>
+                <ul>
+                  {% if r.error %}<li>{{ r.error }}</li>{% endif %}
+                  {% for f in r.failures %}<li><strong>{{ f.name }}</strong>: {{ f.message }}</li>{% endfor %}
+                </ul>
+              </details>
+            {% else %}{{ r.summary }}{% endif %}
+          </td>
+          <td>{{ "%.2f"|format(r.duration) }} s</td>
+          <td class="muted">{{ r.checked_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <footer>
+    Checks every {{ interval }} s · <a href="api/status">JSON</a> · <a href="metrics">Metrics</a>
+  </footer>
+</main>
+</body>
+</html>
