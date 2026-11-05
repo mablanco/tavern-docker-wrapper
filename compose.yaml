@@ -1,0 +1,22 @@
+# Demo: the wrapper checking a local go-httpbin with the example tests.
+#   docker compose up --build   ->   http://localhost:8080
+services:
+  tavern-wrapper:
+    build: .
+    image: tavern-docker-wrapper:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./examples:/config:ro
+    environment:
+      DEMO_USER: demo
+      DEMO_PASSWORD: demo-secret
+      # Slack-compatible webhook; leave empty to only log alerts
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+    depends_on:
+      - httpbin
+    restart: unless-stopped
+
+  httpbin:
+    image: mccutchen/go-httpbin:2.26.0
+    restart: unless-stopped

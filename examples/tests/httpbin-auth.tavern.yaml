@@ -1,0 +1,30 @@
+# Secrets come from the container environment through {tavern.env_vars.NAME}.
+---
+test_name: basic auth with credentials from the environment
+strict:
+  - json:off
+stages:
+  - name: GET /basic-auth accepts the right password
+    request:
+      url: "{base_url}/basic-auth/{user}/{tavern.env_vars.DEMO_PASSWORD}"
+      method: GET
+      auth:
+        - "{user}"
+        - "{tavern.env_vars.DEMO_PASSWORD}"
+      timeout: 5
+    response:
+      status_code: 200
+      json:
+        authenticated: true
+        user: "{user}"
+
+  - name: GET /basic-auth rejects a wrong password
+    request:
+      url: "{base_url}/basic-auth/{user}/{tavern.env_vars.DEMO_PASSWORD}"
+      method: GET
+      auth:
+        - "{user}"
+        - not-the-password
+      timeout: 5
+    response:
+      status_code: 401

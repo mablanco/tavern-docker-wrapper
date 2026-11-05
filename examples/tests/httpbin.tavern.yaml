@@ -1,0 +1,29 @@
+# Every YAML document is one Tavern test. {base_url} comes from services.yaml.
+---
+test_name: health endpoint answers
+strict:
+  - json:off  # only check the keys listed below
+stages:
+  - name: GET /get echoes the query string
+    request:
+      url: "{base_url}/get"
+      method: GET
+      params:
+        probe: tavern
+      timeout: 5
+    response:
+      status_code: 200
+      json:
+        args:
+          probe: [tavern]
+
+---
+test_name: status codes are honoured
+stages:
+  - name: GET /status/204 returns no content
+    request:
+      url: "{base_url}/status/204"
+      method: GET
+      timeout: 5
+    response:
+      status_code: 204
